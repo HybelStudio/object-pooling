@@ -1,0 +1,11 @@
+{
+    "name": "com.hybelstudio.object-pooling",
+    "displayName": "Object Pooling",
+    "description": "A small package to handle easy object pooling in Unity using Scriptable Objects. Also contains a flexible API for scripted Object Pooling with generics.",
+    "version": "1.0.0",
+    "unity": "2022.3",
+    "author": {
+        "name": "Hybel Studio",
+        "email": "hybelstudio@gmail.com"
+    }
+}

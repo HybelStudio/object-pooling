@@ -1,0 +1,14 @@
+{
+    "name": "Hybel.ObjectPooling",
+    "rootNamespace": "Hybel.ObjectPooling",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
