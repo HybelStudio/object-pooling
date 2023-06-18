@@ -76,15 +76,15 @@ namespace Hybel.ObjectPooling
                 {
 #if HYBEL_CLOGGER
                     case (true, false):
-                        poolAsset.Log($"Highest amount of objects in '{poolAsset.name}' was {pool.HighestAmount}.");
+                        poolAsset.Log($"Highest amount of objects in '{poolAsset.name}' was {pool.HighestActiveAmount}.");
                         break;
                     
                     case (false, true):
-                        poolAsset.Log($"Average amount of objects in '{poolAsset.name}' was {pool.HighestAmount}.");
+                        poolAsset.Log($"Average amount of objects in '{poolAsset.name}' was {pool.AverageActiveAmount}.");
                         break;
                     
                     case (true, true):
-                        poolAsset.Log($"{poolAsset.name}' has an average amount of objects at {pool.AverageAmount} with a peak of {pool.HighestAmount}.");
+                        poolAsset.Log($"{poolAsset.name}' has an average amount of objects at {pool.AverageActiveAmount} with a peak of {pool.HighestActiveAmount}.");
                         break;
 #else
                     case (true, false):
