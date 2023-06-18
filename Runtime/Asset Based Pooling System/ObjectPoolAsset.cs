@@ -1,24 +1,24 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-#if HYBEL_VARIABLES
-using Hybel.Variables;
-#endif;
+//#if HYBEL_VARIABLES
+//using Hybel.Variables;
+//#endif
 
 namespace Hybel.ObjectPooling
 {
     [CreateAssetMenu(fileName = "New Object Pool", menuName = "Objects/Object Pool")]
     public class ObjectPoolAsset : ScriptableObject, IObjectPool<GameObject>
     {
-#if HYBEL_VARIABLES
-        [SerializeField] private PrefabRef prefab;
-        [SerializeField] private OverflowMode overflowMode;
-        [SerializeField, Min(0)] private IntRef overflowIncrement = 50;
-        [SerializeField] private IntRef amountToStartWith;
-        [SerializeField] private InstantiationType instantiationType;
-        [SerializeField, Min(1)] private IntRef batchAmount = 1;
-        [SerializeField] private BoolRef logHighestAmount = false;
-        [SerializeField] private BoolRef logAverageAmount = false;
-#else
+//#if HYBEL_VARIABLES
+//        [SerializeField] private PrefabRef prefab;
+//        [SerializeField] private OverflowMode overflowMode;
+//        [SerializeField, Min(0)] private IntRef overflowIncrement = 50;
+//        [SerializeField] private IntRef amountToStartWith;
+//        [SerializeField] private InstantiationType instantiationType;
+//        [SerializeField, Min(1)] private IntRef batchAmount = 1;
+//        [SerializeField] private BoolRef logHighestAmount = false;
+//        [SerializeField] private BoolRef logAverageAmount = false;
+//#else
         [SerializeField] private GameObject prefab;
         [SerializeField] private OverflowMode overflowMode;
         [SerializeField, Min(0)] private int overflowIncrement = 50;
@@ -27,7 +27,7 @@ namespace Hybel.ObjectPooling
         [SerializeField, Min(1)] private int batchAmount = 1;
         [SerializeField] private bool logHighestAmount = false;
         [SerializeField] private bool logAverageAmount = false;
-#endif   
+//#endif   
 
         public GameObject Prefab => prefab;
         public int AmountToStartWith => amountToStartWith;
