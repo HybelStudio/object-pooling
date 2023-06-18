@@ -5,7 +5,11 @@ using Hybel.Monads;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Hybel.ObjectPooling
 {
@@ -35,6 +39,72 @@ namespace Hybel.ObjectPooling
         }
 
         #endregion
+
+#if UNITY_EDITOR
+        #region EditorLogging
+
+        [RuntimeInitializeOnLoadMethod]
+        private static void SubscribeOnPlayModeChanged() => EditorApplication.playModeStateChanged += OnPlayModeChanged;
+
+        private static void OnPlayModeChanged(PlayModeStateChange stateChange)
+        {
+            if (stateChange is PlayModeStateChange.EnteredPlayMode)
+            {
+                foreach (KeyValuePair<ObjectPoolAsset,ObjectPool> pair in Instance._poolDictionary)
+                {
+                    ObjectPoolAsset poolAsset = pair.Key;
+                    ObjectPool pool = pair.Value;
+
+                    if (poolAsset.LogAverageAmount)
+                        Instance.StartCoroutine(pool.TrackAverageRoutine());
+                }
+                
+                return;
+            }
+            
+            if (stateChange is not PlayModeStateChange.ExitingPlayMode)
+                return;
+            
+            EditorApplication.playModeStateChanged -= OnPlayModeChanged;
+
+            foreach (KeyValuePair<ObjectPoolAsset, ObjectPool> pair in Instance._poolDictionary)
+            {
+                ObjectPoolAsset poolAsset = pair.Key;
+                ObjectPool pool = pair.Value;
+
+                switch (poolAsset.LogHighestAmount, poolAsset.LogAverageAmount)
+                {
+#if HYBEL_CLOGGER
+                    case (true, false):
+                        poolAsset.Log($"Highest amount of objects in '{poolAsset.name}' was {pool.HighestAmount}.");
+                        break;
+                    
+                    case (false, true):
+                        poolAsset.Log($"Average amount of objects in '{poolAsset.name}' was {pool.HighestAmount}.");
+                        break;
+                    
+                    case (true, true):
+                        poolAsset.Log($"{poolAsset.name}' has an average amount of objects at {pool.AverageAmount} with a peak of {pool.HighestAmount}.");
+                        break;
+#else
+                    case (true, false):
+                        Debug.Log($"[ObjectPooler] Highest amount of objects in '{poolAsset.name}' was {pool.HighestActiveAmount}.", poolAsset);
+                        break;
+                    
+                    case (false, true):
+                        Debug.Log($"[ObjectPooler] Average amount of objects in '{poolAsset.name}' was {pool.AverageActiveAmount}.", poolAsset);
+                        break;
+                    
+                    case (true, true):
+                        Debug.Log($"[ObjectPooler] '{poolAsset.name}' has an average amount of objects at {pool.AverageActiveAmount} with a peak of {pool.HighestActiveAmount}.", poolAsset);
+                        break;
+#endif
+                }
+            }
+        }
+
+        #endregion
+#endif
         
 #if ODIN_INSPECTOR
         [InlineEditor]
@@ -236,6 +306,7 @@ namespace Hybel.ObjectPooling
             private int _maxPoolSize;
             private readonly int _overflowIncrement;
             private readonly OverflowMode _overflowMode;
+            private readonly List<int> _activeAmounts = new();
 
             public int CountAll => CountActive + CountInactive;
 
@@ -244,6 +315,10 @@ namespace Hybel.ObjectPooling
             public int CountInactive => _inactive.Count;
 
             public int MaxPoolSize => _maxPoolSize;
+
+            public int HighestActiveAmount { get; private set; }
+
+            public int AverageActiveAmount => Mathf.RoundToInt((float)_activeAmounts.Average());
 
             public ObjectPool(
                 Func<GameObject> onCreateObject,
@@ -271,15 +346,19 @@ namespace Hybel.ObjectPooling
             {
                 if (_inactive.Count > 0)
                 {
-                    var dequeuedObject = _inactive.Dequeue();
+                    GameObject dequeuedObject = _inactive.Dequeue();
                     _onTakeObject(dequeuedObject, position, rotation);
                     _active.Add(dequeuedObject);
+                    HighestActiveAmount = Mathf.Max(HighestActiveAmount, CountActive);
                     return dequeuedObject;
                 }
 
                 if (PopulateInactive())
+                {
+                    HighestActiveAmount = Mathf.Max(HighestActiveAmount, CountActive);
                     return Get(position, rotation);
-
+                }
+                
                 return null;
             }
 
@@ -317,10 +396,10 @@ namespace Hybel.ObjectPooling
             {
                 if (_onDestroyObject != null)
                 {
-                    foreach (var inactiveObject in _inactive)
+                    foreach (GameObject inactiveObject in _inactive)
                         _onDestroyObject(inactiveObject);
 
-                    foreach (var activeObject in _active)
+                    foreach (GameObject activeObject in _active)
                         _onDestroyObject(activeObject);
                 }
 
@@ -341,7 +420,7 @@ namespace Hybel.ObjectPooling
                             if (_maxPoolSize <= 0)
                                 return false;
 
-                            var stolenObj = _active[0];
+                            GameObject stolenObj = _active[0];
                             _active.Remove(stolenObj);
                             _onReleaseObject(stolenObj);
                             _inactive.Enqueue(stolenObj);
@@ -371,6 +450,23 @@ namespace Hybel.ObjectPooling
                 }
 
                 return count;
+            }
+
+            public IEnumerator TrackAverageRoutine()
+            {
+                const float UPDATE_INTERVAL = 1f;
+                const int MAX_AMOUNTS = 1024;
+
+                var interval = new WaitForSeconds(UPDATE_INTERVAL);
+                
+                while (true)
+                {
+                    while (_activeAmounts.Count >= MAX_AMOUNTS)
+                        _activeAmounts.RemoveAt(0);
+                    
+                    _activeAmounts.Add(CountActive);
+                    yield return interval;
+                }
             }
         }
     }

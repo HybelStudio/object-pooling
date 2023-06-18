@@ -16,6 +16,8 @@ namespace Hybel.ObjectPooling.Editor
         private SerializedProperty _propAmountToStartWith;
         private SerializedProperty _propInstantiationType;
         private SerializedProperty _propBatchAmount;
+        private SerializedProperty _propLogHighestAmount;
+        private SerializedProperty _propLogAverageAmount;
 
         private void OnEnable()
         {
@@ -27,6 +29,8 @@ namespace Hybel.ObjectPooling.Editor
             _propAmountToStartWith = _so.FindProperty("amountToStartWith");
             _propInstantiationType = _so.FindProperty("instantiationType");
             _propBatchAmount = _so.FindProperty("batchAmount");
+            _propLogHighestAmount = _so.FindProperty("logHighestAmount");
+            _propLogAverageAmount = _so.FindProperty("logAverageAmount");
         }
 
         public override void OnInspectorGUI()
@@ -45,8 +49,11 @@ namespace Hybel.ObjectPooling.Editor
 
                 PropertyField(_propInstantiationType);
 
-                if (_propInstantiationType.intValue == 1)
+                if (_propInstantiationType.intValue == (int)ObjectPoolAsset.InstantiationType.BatchesPerFrame)
                     PropertyField(_propBatchAmount);
+
+                PropertyField(_propLogHighestAmount);
+                PropertyField(_propLogAverageAmount);
             }
         }
     }
