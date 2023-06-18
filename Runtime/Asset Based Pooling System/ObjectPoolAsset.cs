@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+#if HYBEL_VARIABLES
+using Hybel.Variables;
+#endif;
 
 namespace Hybel.ObjectPooling
 {
