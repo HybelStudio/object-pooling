@@ -33,7 +33,7 @@ Open the create menu and navigate to the `/Objects` path and click `Object Pool`
 - **Instantiation Type:** This determines how to objects are instatiated during initialization.
     - **Bulk:** Using this option means all the objects are instantiated at the same time during initialization.
     - **Batches Per Frame:** Using this option means the objects will be instantiated over multiple frames.
-- **Batch Amount:** If the `Batches Per Frame` option is chosen for `Instantiation Type` this detrmines how many objects are instantiated each frame. If you have many object pools with this option, its better to choose smaller numbers since all the pools are handles in parallel and will accumulate their batches on each frame.
+- **Batch Amount:** If the `Batches Per Frame` option is chosen for `Instantiation Type` this detrmines how many objects are instantiated each frame. If you have many object pools with this option, its better to choose smaller numbers since all the pools are handled in parallel and will accumulate their batches on each frame.
 
 ### Add the Object Pool Asset to the Object Pooler
 
