@@ -48,6 +48,7 @@ namespace Hybel.ObjectPooling
         public int OverflowIncrement => overflowIncrement;
 
         public GameObject Get() => ObjectPooler.Get(this, default, default);
+        public GameObject Get(Vector3 position, Quaternion rotation) => ObjectPooler.Get(this, position, orientation);
         public IEnumerable<GameObject> Get(int amount) => ObjectPooler.Get(this, amount);
         public bool TryGet(out GameObject obj) => ObjectPooler.TryGet(this, out obj);
         public void Release(GameObject obj) => ObjectPooler.Release(this, obj);
